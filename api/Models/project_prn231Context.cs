@@ -18,6 +18,7 @@ namespace api.Models
 
         public virtual DbSet<Class> Classes { get; set; } = null!;
         public virtual DbSet<Contest> Contests { get; set; } = null!;
+        public virtual DbSet<StudentsClass> StudentsClasses { get; set; } = null!;
         public virtual DbSet<Subject> Subjects { get; set; } = null!;
         public virtual DbSet<Submission> Submissions { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
@@ -26,8 +27,8 @@ namespace api.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                var ConnectionString = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetConnectionString("DefaultConnection");
-                optionsBuilder.UseSqlServer(ConnectionString);
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("server=localhost;database=project_prn231;user=g3;password=123456;TrustServerCertificate=True;");
             }
         }
 
@@ -35,9 +36,7 @@ namespace api.Models
         {
             modelBuilder.Entity<Class>(entity =>
             {
-                entity.Property(e => e.Id)
-                    .ValueGeneratedNever()
-                    .HasColumnName("id");
+                entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Name)
                     .HasMaxLength(100)
@@ -49,14 +48,12 @@ namespace api.Models
                 entity.HasOne(d => d.Teacher)
                     .WithMany(p => p.Classes)
                     .HasForeignKey(d => d.TeacherId)
-                    .HasConstraintName("FK__Classes__teacher__3C69FB99");
+                    .HasConstraintName("FK__Classes__teacher__3A81B327");
             });
 
             modelBuilder.Entity<Contest>(entity =>
             {
-                entity.Property(e => e.Id)
-                    .ValueGeneratedNever()
-                    .HasColumnName("id");
+                entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.ClassId).HasColumnName("class_id");
 
@@ -90,11 +87,37 @@ namespace api.Models
                     .HasConstraintName("FK__Contests__subjec__3F466844");
             });
 
+            modelBuilder.Entity<StudentsClass>(entity =>
+            {
+                entity.ToTable("Students_Classes");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.ClassId).HasColumnName("class_id");
+
+                entity.Property(e => e.StudentId).HasColumnName("student_id");
+
+                entity.HasOne(d => d.Class)
+                    .WithMany(p => p.StudentsClasses)
+                    .HasForeignKey(d => d.ClassId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__Students___class__440B1D61");
+
+                entity.HasOne(d => d.Student)
+                    .WithMany(p => p.StudentsClasses)
+                    .HasForeignKey(d => d.StudentId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__Students___stude__4316F928");
+            });
+
             modelBuilder.Entity<Subject>(entity =>
             {
-                entity.Property(e => e.Id)
-                    .ValueGeneratedNever()
-                    .HasColumnName("id");
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Description)
+                    .HasMaxLength(250)
+                    .IsUnicode(false)
+                    .HasColumnName("description");
 
                 entity.Property(e => e.Name)
                     .HasMaxLength(100)
@@ -104,9 +127,7 @@ namespace api.Models
 
             modelBuilder.Entity<Submission>(entity =>
             {
-                entity.Property(e => e.Id)
-                    .ValueGeneratedNever()
-                    .HasColumnName("id");
+                entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Content)
                     .IsUnicode(false)
@@ -114,9 +135,7 @@ namespace api.Models
 
                 entity.Property(e => e.ContestId).HasColumnName("contest_id");
 
-                entity.Property(e => e.Grade)
-                    .HasColumnType("decimal(5, 2)")
-                    .HasColumnName("grade");
+                entity.Property(e => e.Grade).HasColumnName("grade");
 
                 entity.Property(e => e.StudentId).HasColumnName("student_id");
 
@@ -124,22 +143,28 @@ namespace api.Models
                     .HasColumnType("datetime")
                     .HasColumnName("submission_time");
 
+                entity.Property(e => e.TeacherFeedback)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasColumnName("teacher_feedback");
+
                 entity.HasOne(d => d.Contest)
                     .WithMany(p => p.Submissions)
                     .HasForeignKey(d => d.ContestId)
-                    .HasConstraintName("FK__Submissio__conte__440B1D61");
+                    .HasConstraintName("FK__Submissio__conte__47DBAE45");
 
                 entity.HasOne(d => d.Student)
                     .WithMany(p => p.Submissions)
                     .HasForeignKey(d => d.StudentId)
-                    .HasConstraintName("FK__Submissio__stude__4316F928");
+                    .HasConstraintName("FK__Submissio__stude__46E78A0C");
             });
 
             modelBuilder.Entity<User>(entity =>
             {
-                entity.Property(e => e.Id)
-                    .ValueGeneratedNever()
-                    .HasColumnName("id");
+                entity.HasIndex(e => e.Username, "UQ__Users__F3DBC5723E6A3B24")
+                    .IsUnique();
+
+                entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Email)
                     .HasMaxLength(100)
@@ -170,23 +195,6 @@ namespace api.Models
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("username");
-
-                entity.HasMany(d => d.ClassesNavigation)
-                    .WithMany(p => p.Students)
-                    .UsingEntity<Dictionary<string, object>>(
-                        "StudentsClass",
-                        l => l.HasOne<Class>().WithMany().HasForeignKey("ClassId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK__Students___class__47DBAE45"),
-                        r => r.HasOne<User>().WithMany().HasForeignKey("StudentId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK__Students___stude__46E78A0C"),
-                        j =>
-                        {
-                            j.HasKey("StudentId", "ClassId").HasName("PK__Students__55EC4102DB609C51");
-
-                            j.ToTable("Students_Classes");
-
-                            j.IndexerProperty<int>("StudentId").HasColumnName("student_id");
-
-                            j.IndexerProperty<int>("ClassId").HasColumnName("class_id");
-                        });
             });
 
             OnModelCreatingPartial(modelBuilder);

@@ -9,7 +9,8 @@ namespace api.Models
         public string? Content { get; set; }
         public int? StudentId { get; set; }
         public int? ContestId { get; set; }
-        public decimal? Grade { get; set; }
+        public int? Grade { get; set; }
+        public string? TeacherFeedback { get; set; }
         public DateTime? SubmissionTime { get; set; }
 
         public virtual Contest? Contest { get; set; }

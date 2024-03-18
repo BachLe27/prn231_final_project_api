@@ -8,7 +8,7 @@ namespace api.Models
         public Class()
         {
             Contests = new HashSet<Contest>();
-            Students = new HashSet<User>();
+            StudentsClasses = new HashSet<StudentsClass>();
         }
 
         public int Id { get; set; }
@@ -17,7 +17,6 @@ namespace api.Models
 
         public virtual User? Teacher { get; set; }
         public virtual ICollection<Contest> Contests { get; set; }
-
-        public virtual ICollection<User> Students { get; set; }
+        public virtual ICollection<StudentsClass> StudentsClasses { get; set; }
     }
 }
