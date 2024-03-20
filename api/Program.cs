@@ -17,9 +17,7 @@ namespace api
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-<<<<<<< HEAD
             builder.Services.AddHttpClient();
-=======
             builder.Services.AddAutoMapper(typeof(MapperConfig));
 >>>>>>> 627d4b4 (complete getSubmissionByStudentAndContest api)
             builder.Services.AddDbContext<project_prn231Context>(options =>
