@@ -9,7 +9,7 @@ namespace api.Controllers
     [ApiController]
     public class OpenAIController : ControllerBase
     {
-        private readonly string apiKey = "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";
+        private readonly string apiKey = "";
         private readonly HttpClient httpClient;
 
         public OpenAIController(IHttpClientFactory httpClientFactory)
