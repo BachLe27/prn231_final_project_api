@@ -104,6 +104,8 @@ namespace api.Controllers
             return CreatedAtAction("GetClass", new { id = @class.Id }, @class);
         }
 
+       
+
         // DELETE: api/Classes/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteClass(int id)
@@ -131,6 +133,9 @@ namespace api.Controllers
 
                 _context.RemoveRange(contests);
 
+                var studentClass = _context.StudentsClasses.Where(x => x.Class == @class).ToList();
+
+                _context.RemoveRange(studentClass);
                 _context.Classes.Remove(@class);
                 await _context.SaveChangesAsync();
 
