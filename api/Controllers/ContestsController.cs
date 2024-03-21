@@ -76,8 +76,12 @@ namespace api.Controllers
                     throw;
                 }
             }
-
-            return NoContent();
+            var response = new
+            {
+                message = "Cập nhật bài thi thành công!",
+                contest = contest
+            };
+            return Ok(response);
         }
 
         // POST: api/Contests
