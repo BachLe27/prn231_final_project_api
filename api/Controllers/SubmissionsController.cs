@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using api.Models;
+using AutoMapper;
+using api.DTOs;
 
 namespace api.Controllers
 {
@@ -14,10 +16,12 @@ namespace api.Controllers
     public class SubmissionsController : ControllerBase
     {
         private readonly project_prn231Context _context;
+        private readonly IMapper _mapper;
 
-        public SubmissionsController(project_prn231Context context)
+        public SubmissionsController(project_prn231Context context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Submissions
@@ -118,6 +122,27 @@ namespace api.Controllers
         private bool SubmissionExists(int id)
         {
             return (_context.Submissions?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+        
+        [HttpGet("{studentId}/{contestId}")]
+        public async Task<ActionResult<SubmissionDTO>> GetByStudentAndContest(int studentId, int contestId)
+        {
+            if (_context.Submissions == null)
+            {
+                return NotFound();
+            }
+            var submission = await _context.Submissions
+                .Include(submission => submission.Contest)
+                .Include(submission => submission.Student)
+                .FirstOrDefaultAsync(s => s.StudentId == studentId && s.ContestId == contestId);
+
+            if (submission == null)
+            {
+                return NotFound();
+            }
+            var result = _mapper.Map<SubmissionDTO>(submission);
+
+            return result;
         }
     }
 }
