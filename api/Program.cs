@@ -1,4 +1,5 @@
 
+using api.Map;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +17,7 @@ namespace api
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddAutoMapper(typeof(MapperConfig));
             builder.Services.AddDbContext<project_prn231Context>(options =>
   options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
