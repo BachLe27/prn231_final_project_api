@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using api.Models;
+using api.DTOs;
 
 namespace api.Controllers
 {
@@ -24,11 +25,19 @@ namespace api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Class>>> GetClasses()
         {
-          if (_context.Classes == null)
-          {
-              return NotFound();
-          }
-            return await _context.Classes.ToListAsync();
+            if (_context.Classes == null)
+            {
+                return NotFound();
+            }
+            var res = _context.Classes.Include(x => x.Teacher);
+            var classes =  res.Select(x => new ClassDTO
+            {
+                Id = x.Id,
+                Name = x.Name,
+                TeacherId = x.TeacherId,
+                TeacherName = x.Teacher.Fullname
+            });
+            return Ok(classes);
         }
 
         // GET: api/Classes/5
@@ -109,10 +118,30 @@ namespace api.Controllers
                 return NotFound();
             }
 
-            _context.Classes.Remove(@class);
-            await _context.SaveChangesAsync();
+            try
+            {
+                var contests = _context.Contests.Include(x => x.Class).Where(x => x.Class == @class);
 
-            return NoContent();
+                foreach (var contest in contests)
+                {
+                    var submissions = contest.Submissions.Where(x => x.ContestId == contest.Id).ToList();
+                    _context.RemoveRange(submissions);
+                    _context.SaveChanges();
+                }
+
+                _context.RemoveRange(contests);
+
+                _context.Classes.Remove(@class);
+                await _context.SaveChangesAsync();
+
+                return Ok("Delete Class Successfully");
+            }
+            catch (Exception)
+            {
+
+                return BadRequest("Delete Class Failed");
+            }
+            
         }
 
         private bool ClassExists(int id)
