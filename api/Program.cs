@@ -21,11 +21,9 @@ namespace api
                 });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-<<<<<<< HEAD
             builder.Services.AddSwaggerGen();
             builder.Services.AddHttpClient();
             builder.Services.AddAutoMapper(typeof(MapperConfig));
-=======
 
             var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
             var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
@@ -59,7 +57,6 @@ namespace api
                 });
             });
 
->>>>>>> b84ea4d (Update controllers)
             builder.Services.AddDbContext<project_prn231Context>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
