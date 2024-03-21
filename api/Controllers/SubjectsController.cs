@@ -77,7 +77,13 @@ namespace api.Controllers
                 }
             }
 
-            return NoContent();
+            var response = new
+            {
+                message = "Update Subject successful",
+                user = _context.Subjects.FirstOrDefault(x => x.Id == id)
+            };
+
+            return Ok(response);
         }
 
         // POST: api/Subjects
@@ -106,13 +112,35 @@ namespace api.Controllers
             var subject = await _context.Subjects.FindAsync(id);
             if (subject == null)
             {
-                return NotFound();
+                return NotFound("SubjectId not valid");
             }
 
-            _context.Subjects.Remove(subject);
-            await _context.SaveChangesAsync();
+            try
+            {
+                var contests = _context.Contests.Where(x => x.Subject == subject).ToList();
 
-            return NoContent();
+                if (contests.Count > 0)
+                {
+                    foreach (var contest in contests)
+                    {
+                        var submissions = contest.Submissions.Where(x => x.ContestId == contest.Id).ToList();
+                        _context.RemoveRange(submissions);
+                        _context.SaveChanges();
+                    }
+
+                    _context.RemoveRange(contests);
+                    _context.SaveChanges();
+                }
+
+                _context.Subjects.Remove(subject);
+                await _context.SaveChangesAsync();
+
+                return Ok("Delete Subject Successfully");
+            }
+            catch (Exception)
+            {
+                return BadRequest("Error");
+            };
         }
 
         private bool SubjectExists(int id)

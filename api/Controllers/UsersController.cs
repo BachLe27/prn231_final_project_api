@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using api.Models;
+using NuGet.Common;
 
 namespace api.Controllers
 {
@@ -77,7 +78,13 @@ namespace api.Controllers
                 }
             }
 
-            return NoContent();
+            var response = new
+            {
+                message = "Update profile successful",
+                user = _context.Users.FirstOrDefault(x => x.Id == id)
+            };
+
+            return Ok(response);
         }
 
         // POST: api/Users
