@@ -79,6 +79,8 @@ namespace api.Controllers
                 .Where(x => x.ContestId == contestId)
                 .Select(x => new
                 {
+                    studentId = x.StudentId,
+                    contestId = x.ContestId,
                     student = x.Student,
                     contest = x.Contest,
                     id = x.Id,
@@ -127,6 +129,33 @@ namespace api.Controllers
 
             return NoContent();
         }
+
+
+        [HttpPut("Grade/{id}")]
+        public async Task<IActionResult> Grade(int id, int grade)
+        {
+
+            var submissions = _context.Submissions.FirstOrDefault(x => x.Id == id); 
+
+            if (submissions == null)
+            {
+                return BadRequest("Submissions not found");
+            }
+            try
+            {
+                submissions.Grade = grade;
+                _context.Update(submissions);
+                _context.SaveChanges();
+                return Ok("Update grade successfully");
+            }
+            catch (Exception)
+            {
+                return BadRequest("Submissions not found");
+            }
+
+            
+        }
+
 
         // POST: api/Submissions
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
