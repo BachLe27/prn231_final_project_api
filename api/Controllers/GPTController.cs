@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using api.DTOs;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using OpenAI_API;
@@ -12,10 +13,10 @@ namespace api.Controllers
     public class GPTController : ControllerBase
     {
         
-        [HttpGet("generate/answer")]
-        public async Task<IActionResult> GetAnswer(string question)
+        [HttpPost("generate/answer")]
+        public async Task<IActionResult> GetAnswer(GPTRequestDTO question)
         {
-            string apiKey = "";
+            string apiKey = "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";
             var openai = new OpenAIAPI(apiKey);
             var chat = openai.Chat.CreateConversation();
             chat.RequestParameters.Temperature = 0;
@@ -23,10 +24,10 @@ namespace api.Controllers
             {
                 Model = Model.ChatGPTTurbo,
                 Temperature = 0.1,
-                MaxTokens = 50,
+                MaxTokens = 200,
                 Messages = new ChatMessage[]
                 {
-                    new ChatMessage(ChatMessageRole.User, question)
+                    new ChatMessage(ChatMessageRole.User, question.ToString())
                 }
             });
             var reply = result.Choices[0].Message;
