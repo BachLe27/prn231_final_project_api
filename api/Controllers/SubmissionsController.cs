@@ -43,14 +43,58 @@ namespace api.Controllers
           {
               return NotFound();
           }
-            var submission = await _context.Submissions.FindAsync(id);
+            var submission = _context.Submissions
+                .Include(x => x.Contest)
+                .Include(x => x.Student)
+                .Where(x => x.Id == id)
+                .Select(x => new
+                {
+                    Id = x.Id,
+                    Contest = x.Contest,
+                    SubjectName = x.Contest.Subject.Name,
+                    Student = x.Student,
+                    Grade = x.Grade,
+                    SubmissionTime = x.SubmissionTime,
+                    TeacherFeedback = x.TeacherFeedback,
+                    Content = x.Content
+                });
 
             if (submission == null)
             {
                 return NotFound();
             }
 
-            return submission;
+            return Ok(submission);
+        }
+
+        [HttpGet("getSubmissionsByContestId/{contestId}")]
+        public async Task<IActionResult> GetSubmissionByContestId(int contestId)
+        {
+            if (_context.Submissions == null)
+            {
+                return NotFound();
+            }
+            var submission = _context.Submissions
+                .Include(x => x.Student)
+                .Where(x => x.ContestId == contestId)
+                .Select(x => new
+                {
+                    student = x.Student,
+                    contest = x.Contest,
+                    id = x.Id,
+                    content = x.Content,
+                    teacherFeedback = x.TeacherFeedback,
+                    grade = x.Grade,
+                    submissionTime = x.SubmissionTime
+                });
+               
+
+            if (submission == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(submission);
         }
 
         // PUT: api/Submissions/5

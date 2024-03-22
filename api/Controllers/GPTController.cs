@@ -16,7 +16,7 @@ namespace api.Controllers
         [HttpPost("generate/answer")]
         public async Task<IActionResult> GetAnswer(GPTRequestDTO question)
         {
-            string apiKey = "";
+            string apiKey = "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";
             var openai = new OpenAIAPI(apiKey);
             var chat = openai.Chat.CreateConversation();
             chat.RequestParameters.Temperature = 0;
