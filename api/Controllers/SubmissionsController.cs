@@ -57,7 +57,7 @@ namespace api.Controllers
                     SubmissionTime = x.SubmissionTime,
                     TeacherFeedback = x.TeacherFeedback,
                     Content = x.Content
-                });
+                }).FirstOrDefault();
 
             if (submission == null)
             {
@@ -127,7 +127,7 @@ namespace api.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok(submission);
         }
 
 
